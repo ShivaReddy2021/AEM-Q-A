@@ -1,0 +1,222 @@
+Sling resource merger
+
+1)sling:orderbefore => if you want to get any tabs before any tabs then we can use
+2)sling:hideResource =>if you want to hide any tabs
+3)sling:hideChildren =>if you want to hide any tabs
+4)sling:hideproperties =>if you want to hide any properties
+
+overlay =>when tou overlay a component then it means copy the compnent from libs folder to apps folder then you can impose your own definations like change titile, group name
+override=>override means create your custom componentts by setting the property like sling:resourceSuperType to that component will inherit all the features of libs
+
+Content fragment:
+content fragment is the structured data so we can easily convert structured data into json format after send this josn data to any third party services
+
+node type of cf is dam:asset
+cf's are stored under /content/dam
+cf model is stored under /conf folder
+variations is also available in cf
+
+we can access cf from browser throuh http asset api,we can replace /content/dam with /api/assets/  and extention should be .json
+eg:/api/assets/newsportal/.json
+HTTP Asset api
+
+if we want to create the cf then first we need to create cf model
+
+
+Experience fragment:-
+
+xf are small part of the webpage 
+xf contains group of componenets like tapnav,search,navigation
+xf are stored under /content/experience-fragment
+node type is cq:page
+in xf we are having variations and variation as livecopy 
+variation means we can develop from scratch
+varaiation as live copy means it should comes from master copy
+master is the default variation
+building blocks and rollout options is available
+mostlyt we can use tis xf at header and footer of the template bcoz of these two are common across to all pages
+
+
+Servlet:-
+
+Servlets in AEM are typically used to handle requests from the client (such as a web browser), 
+process the request, and then generate a response to be sent back to the client.
+
+servlet is also one of the OSGI service only
+we can register servlet in 2 ways one is path based servlet and second one is resource based servlet
+@Component annotation is useful to register our servlet into service
+and we can extend our servlet in 2 ways one is slingallmethodservlet amd another one is slingsafemethodservlet
+
+GET:to read purpose
+if you want to read purpose at tis time we can use slingsafemethodservlet is enough
+
+POST,DELETE,PUT if you want to get this methods then we can use slingallmethodservlet and we can call this methods thrpugh ajax calls or postman
+for path based servlet /bin is required and we can access our path based servletthrough /bin
+
+if you want to access resource based servlet then we have one node in jcr and in that node we are having sling:resourceType property this property contains 
+our servlet path(in servlet we are providing one path)
+http://localhost:4502/content/practice/us/en/_jcr_content.txt
+
+path based are not recommended way bcoz of this is not secure ,we can access it directly through path which are provided in servlet
+and in servlts we can give extention and selectors also
+
+@Component(service=Servlet.class,immediate=true)
+@Slingregisterpath(/bin/newsportal)
+public class restoreServlet extends SlingAllMethodServlet{}
+
+Runmode:
+
+runmodes are two types
+1)primary runmodes
+2)secondary runmodes
+
+primary runmode:- author,publish,samplecontent,nosample content
+these primary runmodes are we can set at installation time only one time activation
+sample content means sample project like weretail project
+no sample content means wothout sample project
+
+2)secondary runmodes
+
+like dev,qa,sit,uat,prod
+
+we can set these secondary runmodes in 3ways
+1)java -jar aem-author-p4502 -Dsling.run.modes=dev
+2)we can add runmodes in crx/quickstart/sling/ sling.run.modes=qa
+
+these two are the highest priority
+
+
+Workflow:
+
+AEM Workflows allow you to automate a series of steps that are performed on (one or more) pages and/or assets. 
+
+workflow models and launchers(Model designs) are stored under /conf, but workflow running instances(Runtime models) are stored in /var.
+
+how to get the session object? through resourceresolver
+how to get the resourceresolver ?
+we can get the resourceresolver in 2 ways 1)through request object 2)by sysem user
+
+workflow console contains 
+wf model: using of this we can create wf
+Instances:in instance console we can see running wfs
+launchers:
+Archived:in this console we can see which wfs are successfully
+failure: in this console we can see failure wfs and its reasons
+
+@Component(service = WorkflowProcess.class, 
+        property = {"process.label=Practice Custom Workflow Process" })
+public class PracticeCustomWorkflowProcess implements WorkflowProcess{
+    
+    public void execute(WorkItem workItem, WorkflowSession wfSession, MetaDataMap metaDataMap)
+            throws WorkflowException {
+
+    }
+}
+
+workitem contains workflowdata
+WorkflowSession: It provides the complete capability to manage workflow models and instances.
+MetaDataMap: It provide access to data map and arguments passed as an input.
+
+Handler Advance checkbox. It will proceed to next step automatically once execution of current process step is done.
+
+
+
+
+AEM cloud manager vs AEM 6.5
+debugging purpose
+
+the main difference is environmental setup and deployment and maintenance
+
+validation,build and unit testing,
+
+clientlibs:
+Clientlibs or Client libraries in aem is one of the most widely used features provided by Adobe, 
+it allows us to not only manage our client side resources like ( JavaScript, CSS, images, fonts etc ),
+ but also provide options to debug, minify,merge and gzip the client-side code.
+ 
+ 
+ sightly:
+ data-sly-test: it allows us to test the condition
+ data-sly-unwrap:it allows us to skip the current tag and print the value
+ data-sly-include:it allows us to include one file into another file
+ data-sly-resource:to include one component into another component
+ data-sly-set:it allows us to set the value
+ data-sly-template:it is useful to reuseble the html and consumes it in multiple places by the the help of data-sly-call
+ data-sly-list:it can iterate only child element which are inside of the host element
+ data-sly-repeat:it iterates both host and child element
+ data-sly-use:to call the backend logics
+ 
+ 
+ Schdulers:
+ 
+ @Reference
+ Schduler schduler;(schduler api is used to create the schdulers)
+ 
+ @Reference
+ Replicator replicator;(replicator api is used to deactivate the pages or assets)
+ 
+ Scheduler is used to trigger an activity at particular or period of time.
+ how to close the resolver it means we can add resolver.close() in finally block or we can pass the parameter wise in try  block
+ 
+ do you have any experience on schdulers means?
+ 
+ yes i am having ,we are having a multiple expired article pages and we are implemented one schduler to deactivate in reguler intervals
+ 
+ @Component(service=Runnable.class,immediate=true)    (immediate=true means activate the service on deployment)
+ public class articleExpiry implements Runnable{
+ 
+ 
+ 
+ private void run(){
+ }
+ }
+ 
+ 
+ 
+ normally::
+ 
+ first we can get the resolver in two ways 1)request 2)system user
+ 
+ This is the flow for using of resolver
+ 
+ Resourcereolver resolver=npUtilsService.getResourceResolver();
+ PageManager pageManager= resolver.getPageManager();
+ Page articlePage=pageManager.getPage("/content/newsportal/en/us/articles");
+ 
+ iterator<page> childPages=articlePage.listChildren();
+ While(childPages.hasnext()){
+ 
+ 
+ }
+ 
+ 
+how to create the session object
+ Session session=resolver.adaptTo(Session.class)
+ 
+ 
+ Event handler::
+ 
+ when you create the page then by default event handler is triggered
+ 
+ 1  page events
+ 
+ 
+ without this property it does not listen activation events
+ 
+ 
+ 
+ clientlibs::
+ allow[proxy boolean true is used to remove /apps from url and render with /etc/clientlibs
+ 
+ codebase only we can deploy it
+ codebase means::
+ clientlibs,componenets,osgi services.jar files
+ 
+ and we cannot deploy the content it means assests,cf,xf,pages,tags etc because of the content having lot of gb sofor this at deployment time ie
+ is taking too much of time
+ 
+ 
+ blueprint in msm:
+ Blueprints allow you to control multiple live copies and centrally consistent rollout configs for the blueprint's live copies. A blueprint rollout 
+ will push modifications to all it's live copies
+ 
