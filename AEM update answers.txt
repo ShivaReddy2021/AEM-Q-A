@@ -1,0 +1,650 @@
+Sling resource merger
+
+http://aeminterviewquestions.com/workflow.html
+
+1)sling:orderbefore => allows reordering of child nodes
+2)sling:hideResource =>if you want to hide any tabs
+3)sling:hideChildren =>if you want to hide any tabs
+4)sling:hideproperties =>if you want to hide any properties   
+
+overlay =>when you overlay a component then it means copy the component from libs folder to apps folder then you can impose your own definations like change titile, group name
+override=>override means create your custom components by setting the property like sling:resourceSuperType to that component will inherit all the features of libs
+
+ 
+Template ::interview question;
+
+Initial::for suppose we are adding one component in initial mode at the template level after that
+I am creating some pages are created with same template then addedsome more componnets in initial level
+so those components are also reflected to pages but after some time we are adding some more new components at 
+initial mode these are not reflected to old pages ,these new changes are reflected to new pages only.  
+
+
+
+
+Content fragment:
+content fragment is the structured data so we can easily convert structured data into json format after 
+we can consume this josn data into any third party applications
+
+node type of cf is dam:asset
+cf's are stored under /content/dam
+cf model is stored under /conf folder
+variations is also available in cf 
+
+we can access cf from browser through http asset api,we can replace /content/dam with /api/assets/  and extention should be .json
+eg:/api/assets/newsportal/.json
+HTTP Asset api
+
+if we want to create the cf then first we need to create cf model
+
+ 
+Experience fragment:-
+
+xf are small part of the webpage 
+xf contains group of componenets like tapnav,search,navigation
+xf are stored under /content/experience-fragment 
+node type is cq:page
+in xf we are having variations and variation as livecopy 
+variation means we can develop from scratch
+varaiation as live copy means it should comes from master copy
+master is the default variation
+building blocks and rollout options is available
+mostly  we can use this xf at header and footer of the template bcoz of these two are common across to all pages
+
+
+Servlet:-
+
+Servlets in AEM are typically used to handle requests from the client (such as a web browser), 
+process the request, and then generate a response to be sent back to the client.
+
+servlet is also one of the OSGI service only
+we can register servlet in 2 ways one is path based servlet and second one is resource based servlet
+@Component annotation is useful to register our servlet into service
+and we can extend our servlet in 2 ways one is slingallmethodservlet amd another one is slingsafemethodservlet
+
+GET:to read purpose
+if you want to read purpose at this time we can use slingsafemethodservlet is enough eg:GET,OPTIONS,HEAD etc.
+
+POST,DELETE,PUT if you want to get this methods then we can use slingallmethodservlet and we can call this methods through ajax calls or postman
+for path based servlet /bin is required and we can access our path based servlet through /bin
+ 
+if you want to access resource based servlet then we have one node in jcr and in that node we are having sling:resourceType property 
+this property contains 
+our servlet path(in servlet we are providing one path)
+http://localhost:4502/content/practice/us/en/_jcr_content.txt 
+
+path based are not recommended way bcoz of this is not secure ,we can access it directly through path which are provided in servlet
+and in servlts we can give extention and selectors also
+
+@Component(service=Servlet.class,immediate=true)
+@Slingregisterpath(/bin/newsportal)
+public class restoreServlet extends SlingAllMethodServlet{}
+
+Runmode:
+
+runmodes are two types
+1)primary runmodes
+2)secondary runmodes
+
+primary runmode:- author,publish,samplecontent,nosample content
+these primary runmodes are we can set at installation time only one time activation
+sample content means sample project like weretail project
+no sample content means wothout sample project
+
+2)secondary runmodes 
+
+like dev,qa,sit,uat,prod
+
+we can set these secondary runmodes in 3 ways
+1)java -jar aem-author-p4502 -Dsling.run.modes=dev
+2)we can add runmodes in crx/quickstart/sling/ sling.run.modes=qa
+3)java -jar aem-author-p4502 -r author,custom
+
+these two are the highest priority 
+
+difference b/w aem 6.5 and cloud
+sample and no sample content runmodes are not available in cloud but available in aem 6.5
+
+based on runmodes we can find the environments 
+sling content distribution is in cloud but not in AEM 6.5
+in 6.5 AEM instance required license file but no need in AEM cloud.
+
+
+Workflow:
+
+AEM Workflows allow you to automate a series of steps that are performed on (one or more) pages 
+and/or assets. 
+It enables you to automate experience manager activities and it contains different steps, each 
+step perfoems a different activity such as activating page or sending an email etc.
+
+workflow models and launchers(Model designs) are stored under /conf, but workflow running 
+instances(Runtime models) are stored in /var.
+
+how to get the session object? through resourceresolver
+Session session=resolver.adaptTo(Session.class)
+how to get the resourceresolver ?
+we can get the resourceresolver in 2 ways 1)through request object 2)by system user by using (resource resolver factory)
+
+workflow console contains 
+wf model: using of this we can create wf
+Instances:in instance console we can see current running wfs
+launchers:launchers are triggered when node is created or updated.
+Archived:in this console we can see which wfs are terminated and what is the reason.
+failure: in this console we can see failure wfs.
+
+@Component(service = WorkflowProcess.class, 
+        property = {"process.label=Practice Custom Workflow Process" })
+public class PracticeCustomWorkflowProcess implements WorkflowProcess{
+    
+    public void execute(WorkItem workItem, WorkflowSession wfSession, MetaDataMap metaDataMap)
+            throws WorkflowException {
+
+    }
+}
+
+workitem contains workflowdata
+WorkflowSession: It provides the complete capability of functionality to manage workflow models and instances.
+MetaDataMap: It provide access to data map and arguments passed as an input.
+
+Handler Advance checkbox. It will proceed to next step automatically once execution of current process step is done.
+
+ 
+
+
+AEM cloud manager vs AEM 6.5
+debugging purpose
+
+the main difference is environmental setup and deployment and maintenance
+
+validation,build and unit testing,   
+
+clientlibs:
+Clientlibs or Client libraries in aem is one of the most widely used features provided by Adobe, 
+it allows us to manage our client side resources like ( JavaScript, CSS, images, fonts etc ),
+ but also provide options to debug, minify,merge and gzip the client-side code.
+ 
+ 
+ sightly:
+ data-sly-test: it allows us to test the condition
+ data-sly-unwrap:it allows us to skip the current tag and print the value
+ data-sly-include:it allows us to include one file into another file
+ <sly data-sly-include="${ '/content/newsportal/article.html' }" />
+
+ data-sly-resource:to include one component into another component
+<sly data-sly-resource="${ 'Article' @ resourceType='/apps/newsportal/content/article' }" />
+ data-sly-set:it allows us to set the value
+ data-sly-template:it is useful to reuse the html and consumes it in multiple places by the the help of data-sly-call
+ data-sly-list:it can iterate only child element which are inside of the host element
+ <sly data-sly-list.pages="${properties.articlePages}" />
+ data-sly-repeat:it iterates both host and child element
+ data-sly-use:to call the backend logics
+ 
+ 
+ Schdulers:
+ 
+ @Reference
+ Schduler schduler;(schduler api is used to create the schdulers)
+ ' n
+ @Reference
+ Replicator replicator;(replicator api is used to deactivate the pages or assets)
+ 
+ Scheduler is used to trigger an activity at particular or period of time.
+ how to close the resolver it means we can add resolver.close() in finally block or we can pass it into the parameter wise in try  block
+ 
+ do you have any experience on schdulers means?
+ 
+ yes i have ,we are having a multiple expired article pages and we are implemented one schduler to deactivate those pages in reguler intervals
+ 
+ @Component(service=Runnable.class,immediate=true)    (immediate=true means activate the service on deployment)
+ public class articleExpiry implements Runnable{
+ 
+ 
+ 
+ private void run(){
+ }
+ }
+ 
+ 
+ 
+ normally::  
+ 
+ first we can get the resolver in two ways 1)request 2)system user
+ 
+ This is the flow for using of resolver
+ 
+ Resourcereolver resolver=npUtilsService.getResourceResolver();
+ PageManager pageManager= resolver.getPageManager();
+ Page articlePage=pageManager.getPage("/content/newsportal/en/us/articles");
+ 
+ iterator<page> childPages=articlePage.listChildren();
+ While(childPages.hasnext()){
+ 
+ 
+ }
+ 
+ https://aem-development.com/knowledge-base/implementing-adobe-analytics-in-adobe-experience-manager-aem-a-comprehensive-guide/
+ 
+ https://aem-development.com/aem-best-practices/security/ 
+ 
+how to create the session object
+ Session session=resolver.adaptTo(Session.class)
+ 
+ 
+ Event handler::
+ 
+ when you create the page then by default event handler is triggered
+ 
+ 1  page events
+ 
+ 
+ without this property it does not listen activation events
+ 
+ 
+ 
+ clientlibs::
+ allowproxy boolean true is used to remove /apps from url and render with /etc/clientlibs
+ 
+ codebase only we can deploy it
+ codebase means::
+ clientlibs,componenets,osgi services.jar files
+ 
+ and we cannot deploy the content it means assests,cf,xf,pages,tags etc because of the content having lot of gb so for this at deployment time ie
+ is taking too much of time
+  
+ 
+ blueprint in msm:   tool to control multiple rollout configs and live copies
+ Blueprints allow you to control multiple live copies and centrally consistent rollout configs for the blueprint's live copies.
+ A blueprint rollout 
+ will push modifications to all it's live copies
+ 
+ 
+ ResourceResolver:-
+ The ResourceResolver defines the service API which may be used to resolve Resource objects. The resource resolver is available to 
+ the request processing servlet through the SlingHttpServletRequest.getResourceResolver() method. 
+ A resource resolver can also be created through the ResourceResolverFactory.
+ 
+ Suppose I have added sling.servlet.paths and sling.servlet.resourceTypes both in servlet. sling.servlet.resourceTypes property is ignored 
+ if the sling.servlet.paths property is set.
+ 
+ We can get session from SlingHttpServletRequest.
+Session session = slingHttpServletRequest.getResourceResolver().adaptTo(Session.class)
+
+
+How to add bulk assets in AEM:-
+
+Upload Assets via Web Interface:
+
+AEM provides a web interface where you can upload assets in bulk.
+Navigate to the Assets console (usually accessed via /assets.html), and then use the "Upload" button to upload multiple files at once.
+You can drag and drop multiple files or select them using the file picker dialog.
+
+WebDAV Upload:
+
+AEM supports WebDAV (Web-based Distributed Authoring and Versioning), which allows you to mount AEM's DAM repository as a network drive on your local system.
+You can then copy files to this network drive, and they will be uploaded to AEM as assets.
+This method is useful for bulk uploads, especially when dealing with large numbers of files.
+
+Using Package Manager:
+
+Create a content package containing the assets you want to upload.
+Include the assets in the package along with any associated metadata.
+Upload and install the package using the Package Manager in AEM.
+Using AEM APIs:
+
+You can use AEM's APIs, such as the AssetManager API, to programmatically upload assets in bulk.
+Write custom code or scripts to iterate over a set of files and upload them to the AEM repository using the AssetManager API.
+Use Bulk Metadata Editor:
+
+AEM provides a Bulk Metadata Editor tool that allows you to update metadata for multiple assets simultaneously.
+While this doesn't directly handle bulk asset uploads, it can be useful for managing assets in bulk after they've been uploaded.
+Third-party Integration:
+
+You can integrate AEM with third-party tools or services that support bulk asset uploads.
+For example, you might use an external Digital Asset Management (DAM) system that has integration capabilities with AEM for bulk asset transfers.
+ 
+ 
+ 
+   
+ 
+ https://interviewprep.org/adobe-experience-manager-aem-interview-questions/
+ 
+ Sling dynamic include::
+ 
+ if incase we don't want to render one component in page then we should go through sling dynamic include(SDI).
+ Partial catching of page section.
+ excluding caching for specfic component.
+ download the SDI jar ,install it in osgi configuration,and search for SDI inside of this we should configure it.
+ 
+ 
+ How to trigger a workflow by prpogrammatically?
+ 
+ workflowSession wfsession=workflowService.getWorkflowSession(Session)
+ WorkflowModel wfmodel=wfSession.getWorkflowModel(model name)
+ WorkflowData wfdata=wfsession.newWorkflowData
+ wfSession.startWorkflow(wfModel,wfdata)
+ 
+ 
+ @Component(service=WorkflowProcess.class,property={process.label="workflowProcess dynamically"})
+ public class sampleworkflow implements workflowProcess{
+ 
+ @override
+ public void excute(Workitem workitem,WorkflowSession workflowsession,MetadataMap metadatamap){
+ 
+ }
+ 
+ }
+ Event handlers:
+ Event handlers:for sling level events like page events,asset events,
+ replication events. handleevent method and use Eventhandler interface.
+ ResourceChange listner:node level events like node added,node modified,node removed etc.
+ onchange method and resourceChangeListner interface
+ event listners also jcr level events but these are deprecated and have someperformance issues 
+ 
+ 
+ 
+ https://cq-ma.rkusbulla.de/2023/09/getting-started-with-aems-dispatcher/
+ 
+ We can integrate API s with the help of
+ HtttpClient
+ HttpGet
+ HttpResponse
+ entity 
+ 
+ HttpClient httpClient=HttpClientBuilder.create().build();
+ HttpGet request=new HttpGet("end_point");
+ HttpResponse response=httpClient.excute(request);
+ HttpEntity entity=response.getEntity();
+ 
+  
+in AEM as a cloud only dev,stage,prod and rde only
+
+use of Custom runmode;
+based on runmode we can identify the environment eg:dev author,qa 
+based on runmodes we can pass the environment specific configurations
+
+pathbasedservlet
+paths are hardcoded and paths are not available in jcr repository.
+we cannot apply any permissions
+
+Event handler::
+event handler can listen the some events those are page events,dam events,workflow events,replication events but every event should 
+have different topic so based on the topic the event is triggered and it can implements from eventhandler and we can add one property
+so inside of that we can mention event topic.
+
+The flow of getting resource
+resource getting from resouceresolver and resourceresolver getting from request or systemuser
+
+content fragment::
+HTTP asset API
+GraphQL
+we can export the content fragment in json format through HTTP asset API
+
+
+
+https://medium.com/@gururajkoni/configuring-aem-for-sso-via-azure-ad-44729998c7e7
+
+
+https://redquark.org/blogs/#aem( importamt url) 
+
+how to troubleshoot workflow issues.please click below URL
+https://www.initialyze.com/insights/troubleshooting-common-critical-adobe-experience-manager-issues
+
+
+
+MSM language copy::
+
+we can use the third party translators for example MS(microsoft) translator or GLA(global link adapter) translator
+
+Dialog::
+
+cq:editconfig=>useful to edit the behaviour of component
+cq:actions(to control the edit panel)
+cq:dropTargets=>we can directly drag the image in component
+cq:inplaceeditor=>we can edit the content without open the dialog but it is useful to only title and text field.
+cq:listners=>it can define the what happens before or after an action on component
+afterinsert,beforeinsert,afterdelete,beforedelete
+events like beforedelete afterdelete afterinsert etc
+cq:formParameters=>with the help of this we can provide the default values.
+
+steps to create xf:: xf template->xf template type->xf component
+  
+classic UI is support for ext.js and we are used in aem 6.0 version
+touch ui: touch ui is supported after 6.0 version and it supports granite implementation
+
+
+Vanity URL::
+ this option is available in page properties and this is particular page related then we can go 
+ with vanity Url if do you have bulk pages then we can go with URL maping or redirect rules..
+ 
+ and vanity url it's work in both author and publish server but it won't work in dispatcher level
+ 
+ redirect rules are maintained by dispatcher
+ 
+ URL maping::hiding the wholepath to end user
+ 
+ Replication agent::
+ Default Agent (Content Replication):
+
+replication Agent: Responsible for transferring content from the author instance to the publish instance.
+Flush Agent: Used to clear cached content from the dispatcher when content is activated or deactivated.
+Reverse Replication Agent: Transfers user-generated content from the publish instance to back to the author 
+instance.
+
+How to create replication agents?
+goto miscadmin tools and search for replication agents inside of the that click on new give the name and after that provide url etc.
+
+Adobe analytics::
+Adobe Analytics is a powerful digital analytics tool that helps businesses measure, analyze, and optimize their digital marketing strategies.
+Track User Interactions: Monitor how users interact with your website, mobile apps, and other digital channels.
+Adobe Experience Cloud: Integrate Adobe Analytics with other Adobe Experience Cloud solutions like Adobe Target, Adobe Experience Manager, and Adobe Campaign for a unified approach to digital marketing.
+Data Integration: Combine Adobe Analytics data with other data sources, such as CRM and third-party tools, for comprehensive insights.
+Retail E-commerce: A retail company uses Adobe Analytics to track user behavior on its website, analyze the performance of different product categories, and optimize its marketing campaigns to drive more online sales.
+
+Content Publishing: A media company leverages Adobe Analytics to understand which types of content are most popular with its audience, optimize content distribution strategies, and increase user engagement.
+
+What is clustering?
+AEM supports clustering, which allows multiple AEM instances to work together as a single logical unit. 
+Clustering provides high availability and scalability by distributing content authoring and publishing tasks across multiple instances.
+
+
+URL shorting:
+we can achieve it in two ways one is vanity URL and second one is sling resource resolver factory
+
+
+
+Design and develop AEM components, templates, workflows, and services.
+Integrate AEM with other applications and third-party services.
+Translate business requirements into technical designs and solutions.
+Ensure scalability, performance, and security of AEM applications.
+Troubleshoot issues, provide support, and perform maintenance tasks.
+Stay current with AEM and web development trends and best practices.
+
+
+
+
+troubleshoot in aem::
+to check the error logs or access logs and start the server in debug mode and reproduce the issue in lower environment and to find the scope of the issue.for example we will get any replication issues then check it in queue and log files etc.
+
+the day starts with status call in this call we updated our work status what we did in yestaerday and what should going to do by today and after that 
+I started developement based on requirment and to colleborate with the UI team for UI design and collaborate with juniors if they are struck it anywhere I will guide them.
+
+
+start the day with status call,in this call we provide updates on or our tasks what was did it in yesterday and what is doing by today,after the call we start development based on project requirements and priorities.and to colleborate with the UI team for UI design and collaborate with juniors and to know the work status if they are struck it anywhere I will guide them.code deployment activities and code review etc these are day to day activities.
+
+about sling API  https://medium.com/@vkarthik1356/sling-api-in-aem-22efea74ea1e
+
+
+
+The Sling API provides a wide range of functionality for interacting with the content repository, so the examples will vary depending on what specific tasks you want to perform.
+
+However, I can provide some examples that demonstrate common use cases of the Sling api with respect AEM.
+
+Creating a node:
+ResourceResolver resourceResolver = ...;
+Resource resource = resourceResolver.getResource("/content");
+ModifiableValueMap properties = resource.adaptTo(ModifiableValueMap.class);
+properties.put("propertyName", "propertyValue");
+resourceResolver.commit();
+ 
+2. Reading a node:
+
+ResourceResolver resourceResolver = ...;
+Resource resource = resourceResolver.getResource("/content/newNode");
+if (resource != null) {
+ValueMap properties = resource.getValueMap();
+String propertyValue = properties.get("propertyName", String.class);
+}
+
+3. Updating a node:
+
+ResourceResolver resourceResolver = ...;
+Resource resource = resourceResolver.getResource("/content/newNode");
+if (resource != null) {
+ModifiableValueMap properties = resource.adaptTo(ModifiableValueMap.class);
+properties.put("propertyName", "newPropertyValue");
+resourceResolver.commit();
+}
+
+
+Replication::
+To move the content from author server to publish server
+
+Reverse Replication::To move the user generated content from publish server to author server.
+flush agents::this agents are useful to move the updated content from publish to dispatcher.It will be useful to clear or auto invalidation the catch content from dispatcher..
+
+in queue will check all errors .
+and if incase after replicatio the pages are not shown in publish server then what should you do??
+Ans::first will check in log files and check it in quesue and after that enable the enablesd check box.
+
+
+sling API::
+
+we can get the resolver in two ways one is request and second one is by using system user
+in aem cloud we can create system user by using sling repo init
+Sling repo init::
+create service user npservice
+set ACL for npservice
+    allow jcr:all on /content/newsportal
+     allow jcr:read on /
+end
+
+goto service user::
+
+usermapper service amendement
+
+for solr (searching and indexing)
+https://unlocklearning.in/solr-indexing-by-replication-event-listener/
+https://unlocklearning.in/aem-deployment-options-premise-managed-cloud-service/
+
+
+
+
+Sling APIs::
+ ResourceResolver,
+ Resource,
+ ValueMap,
+ ModifiableValueMap 
+ these four APIs are important to create and update the nodes and we can perfoem all CURD operation in JCR
+ if you are working with sling  model and servlet then request is okay otherwisw we need to create system user
+ 
+ resolver.commit()::is useful to save the changes in jcr repositary.
+
+
+What is a headless CMS?
+A headless CMS is a content management system that separates the presentation layer 
+(where content is presented) from the backend (where content is managed). 
+A headless CMS allows you to manage content in one place and be able to deploy that content 
+on any digital channel you choose. Separating the frontend from the backend unlocks your content,
+making it easier for marketers to manage content independently, and for developers to build faster, 
+automate changes, and manage digital at scale.In a traditional CMS, content is tangled up with code 
+and locked in silos, making reusing content — and creating modern digital experiences — next to impossible.
+
+How to get runmodes in OSGI services
+SlingSettingService OSGI service can be used to get a list of run modes of current AEM instances in your OSGI service.
+@Reference
+private SlingSettingsService slingSettingsService;
+
+Set<String> runModes = slingSettingsService.getRunModes();
+
+java -Xmx1024M -agentlib:jdwp=transport=dt_socket,address=8888,server=y,suspend=n -jar AEM-author-p4502.jar
+
+  data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html"
+ This declares a “clientlib” object, which is implemented as a template.
+After that, you see statements like following one:
+data-sly-call="${clientlib.all @ categories='cq.jquery'}"
+This will output <script> and a <style> includes to all CSS and JS contained in the parameter “categories”.
+You can also call “clientlib.css” and “clientlib.js” if you only want to output the CSS or JS:
+data-sly-call="${clientlib.js @ categories='clientlib1,clientlib2'}"
+data-sly-call="${clientlib.css @ categories='clientlib1,clientlib2'}
+
+Cloud Manager provides built-in CI/CD pipelines that automate the entire process of code building, 
+testing, and deployment. This eliminates manual tasks, saves time, and ensures consistent and 
+reliable deployments
+
+Environment Management: Easily create and manage different AEM environments for development, staging, 
+and production. This allows developers to test code changes in a controlled environment before pushing
+them to production.
+RDE::rapid development environment option is available in AEM as a cloud service.
+
+
+
+dialog	design-dialog
+Dialog will change the content at the page level.	Design dialog will change the content at the template level.
+authored in edit mode.	authored in design mode.
+node name should be dialog.	node name should be design_dialog.
+stored under pages jcr:content node.	stored under design page located under /etc/design/default.
+we can get value from properties object.	we can get design dialog value from currentStyle object.
+jcr:primaryType is cq:Dialog.	jcr:primaryType is cq:Dialog.
+
+
+Advantages of Cloud Services
+
+One of the biggest advantages of cloud services is the streamlined development and maintenance of 
+environments. Instead of creating environments and pipelines manually, which can be time-consuming, 
+cloud services provide user-friendly interfaces that simplify this process.
+
+Immutable Apps and libs
+
+In cloud services, apps and libs are immutable, which enhances reliability and consistency.
+ Additionally, certain components, such as replication agents, have been deprecated. Instead, 
+ we can utilize link content distribution for better performance.
+ Assetmanager Api And asset are removed in AEM cloud.
+ in AEM cloud ASset HTTP api 
+
+User Management with IMS
+
+For user management, cloud services integrate with Identity Management Services (IMS). Previously, 
+in version 6.5, we had a user admin console that allowed us to create individual users for each 
+environment. However,   with cloud services, IMS enables us to create users across multiple environments 
+and synchronize them according to our requirements. 
+Once the user setup is complete, we can log into the specific environment and assign permissions 
+accordingly. This approach not only streamlines user management but also enhances security and 
+organization across different environments.
+
+https://www.mytectra.com/tutorials/aem/performance-optimization-in-aem
+
+
+GraphQL:it is a query language .it is used for filtering and sorting the data and also it is used to deliverd
+the content fragment data in json format.and here we create one end point (filter,sorting,groupby etc.)
+
+Groovy script: groovey script in also one of programming language In groovy script we don't want to mention classes
+and methods and vriable declered with def.
+Real time case in AEM:for SEO for example we are having numb er of pages each page containes pageTitle if pageTitleis not there
+then those pages are update the value of jcr title.
+for grrovy script excute without any deployment and directly we will write in AEm console
+download groovy console plugin and install in aem server(groovy 17v)
+excute the commond mvn clean install -PautoinstallPackage
+some of the predefined methods are available like getPage()
+
+set up graphQL in AEM server::
+Install the graphql package
+and after that goto config browser and enable the graphQL context hub
+and after that create graphQL end point
+
+
+
+Github credentials::
+dsivareddy323@gmail.com
+$hivareddy@2021
+
+sivadsr1995@gmail.com
+$iva@1995
